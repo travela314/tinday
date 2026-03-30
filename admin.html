@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Tindai Admin Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --red:#E8192C;--pink:#FF6B8A;--dark:#0D0B0C;--dark2:#141114;--dark3:#1E1A1C;
+  --card:#252025;--border:rgba(255,255,255,0.09);--text:#F5F0F2;--text2:rgba(245,240,242,0.55);
+  --text3:rgba(245,240,242,0.25);--grad:linear-gradient(135deg,#E8192C,#FF6B8A);
+  --success:#22C55E;--warn:#F59E0B;--r:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--dark);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh}
+a{color:inherit;text-decoration:none}
+
+/* Layout */
+.layout{display:flex;min-height:100vh}
+.sidebar{width:240px;background:var(--dark2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100}
+.main{margin-left:240px;flex:1;padding:32px;max-width:calc(100vw - 240px)}
+
+/* Sidebar */
+.sidebar-logo{padding:28px 24px 20px;border-bottom:1px solid var(--border)}
+.logo-text{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-1px}
+.logo-sub{font-size:11px;color:var(--text3);margin-top:3px;letter-spacing:1px;text-transform:uppercase}
+.nav-section{padding:20px 16px 8px}
+.nav-label{font-size:10px;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;font-weight:600;padding:0 8px;margin-bottom:6px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;font-size:14px;color:var(--text2);transition:all 0.15s;margin-bottom:2px}
+.nav-item:hover{background:var(--dark3);color:var(--text)}
+.nav-item.active{background:rgba(232,25,44,0.12);color:var(--red)}
+.nav-icon{font-size:16px;width:20px;text-align:center}
+.sidebar-bottom{margin-top:auto;padding:16px;border-top:1px solid var(--border)}
+.app-link{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:10px;background:var(--grad);font-size:13px;font-weight:600;color:#fff;cursor:pointer;font-family:'Syne',sans-serif;border:none;width:100%;justify-content:center}
+
+/* Header */
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px}
+.page-title{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;letter-spacing:-0.5px}
+.page-sub{font-size:14px;color:var(--text2);margin-top:4px}
+.header-actions{display:flex;gap:10px;align-items:center}
+
+/* Buttons */
+.btn{padding:10px 20px;border-radius:10px;font-size:13px;font-weight:500;cursor:pointer;border:none;transition:all 0.15s;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:6px}
+.btn:active{transform:scale(0.97)}
+.btn-primary{background:var(--grad);color:#fff;box-shadow:0 4px 16px rgba(232,25,44,0.3)}
+.btn-ghost{background:var(--dark3);color:var(--text2);border:1px solid var(--border)}
+.btn-ghost:hover{color:var(--text);border-color:rgba(255,255,255,0.2)}
+.btn-danger{background:rgba(232,25,44,0.12);color:var(--red);border:1px solid rgba(232,25,44,0.2)}
+.btn-danger:hover{background:rgba(232,25,44,0.2)}
+.btn-sm{padding:6px 14px;font-size:12px}
+.btn-icon{width:36px;height:36px;padding:0;justify-content:center;border-radius:8px}
+
+/* Cards */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:24px}
+.card-sm{padding:16px}
+
+/* Stats row */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
+.stat-card{background:var(--dark3);border:1px solid var(--border);border-radius:var(--r);padding:18px 20px;position:relative;overflow:hidden}
+.stat-card::after{content:attr(data-icon);position:absolute;right:14px;top:14px;font-size:22px;opacity:0.4}
+.stat-num{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.stat-label{font-size:12px;color:var(--text2);margin-top:4px;font-weight:500}
+
+/* Tabs */
+.tabs{display:flex;gap:4px;background:var(--dark3);border-radius:12px;padding:4px;margin-bottom:24px;width:fit-content}
+.tab{padding:8px 18px;border-radius:9px;font-size:13px;font-weight:500;cursor:pointer;color:var(--text2);transition:all 0.15s}
+.tab.active{background:var(--card);color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,0.3)}
+
+/* Profile Grid */
+.profiles-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
+.profile-card-item{background:var(--dark3);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;transition:border-color 0.2s,transform 0.2s}
+.profile-card-item:hover{border-color:rgba(232,25,44,0.3);transform:translateY(-2px)}
+.profile-card-photo{width:100%;height:160px;object-fit:cover;display:flex;align-items:center;justify-content:center;font-size:64px;background:var(--dark2);position:relative}
+.profile-card-photo img{width:100%;height:100%;object-fit:cover}
+.profile-card-body{padding:14px}
+.profile-card-name{font-family:'Syne',sans-serif;font-size:16px;font-weight:700}
+.profile-card-meta{font-size:12px;color:var(--text2);margin-top:4px}
+.profile-card-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
+.tag{padding:3px 10px;border-radius:99px;background:rgba(232,25,44,0.12);color:var(--red);font-size:11px;font-weight:500}
+.profile-card-actions{display:flex;gap:6px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
+.status-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:600}
+.status-active{background:rgba(34,197,94,0.12);color:#22C55E}
+.status-inactive{background:rgba(245,158,11,0.12);color:#F59E0B}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(13,11,12,0.85);backdrop-filter:blur(8px);z-index:500;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--dark2);border:1px solid var(--border);border-radius:20px;width:100%;max-width:580px;max-height:90vh;overflow-y:auto;animation:slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1)}
+@keyframes slideUp{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:24px 24px 0}
+.modal-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:700}
+.modal-close{width:32px;height:32px;border-radius:8px;background:var(--dark3);border:1px solid var(--border);color:var(--text2);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center}
+.modal-body{padding:24px}
+.modal-footer{padding:0 24px 24px;display:flex;gap:10px;justify-content:flex-end}
+
+/* Form */
+.form-group{margin-bottom:18px}
+.form-label{display:block;font-size:13px;color:var(--text2);margin-bottom:8px;font-weight:500;letter-spacing:0.2px}
+.form-input{width:100%;padding:11px 14px;background:var(--dark3);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color 0.2s}
+.form-input:focus{border-color:rgba(232,25,44,0.5)}
+.form-input::placeholder{color:var(--text3)}
+textarea.form-input{resize:vertical;min-height:80px;line-height:1.5}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-hint{font-size:11px;color:var(--text3);margin-top:5px}
+
+/* Photo Upload */
+.photo-upload{border:2px dashed var(--border);border-radius:var(--r);padding:24px;text-align:center;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden}
+.photo-upload:hover{border-color:rgba(232,25,44,0.4);background:rgba(232,25,44,0.04)}
+.photo-upload input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.photo-preview{width:100%;height:200px;object-fit:cover;border-radius:10px;display:none}
+.upload-placeholder{display:flex;flex-direction:column;align-items:center;gap:8px}
+.upload-icon{font-size:36px;opacity:0.5}
+.upload-text{font-size:14px;color:var(--text2)}
+.upload-sub{font-size:12px;color:var(--text3)}
+
+/* My Profile Section */
+.my-profile-card{background:var(--dark3);border:1px solid var(--border);border-radius:var(--r);padding:24px;display:flex;gap:24px;align-items:flex-start;margin-bottom:24px}
+.my-photo{width:100px;height:100px;border-radius:50%;overflow:hidden;border:3px solid var(--red);box-shadow:0 0 24px rgba(232,25,44,0.25);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:48px;background:var(--dark2);position:relative;cursor:pointer}
+.my-photo img{width:100%;height:100%;object-fit:cover}
+.my-photo-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;font-size:20px;border-radius:50%}
+.my-photo:hover .my-photo-overlay{display:flex}
+.my-photo input{position:absolute;inset:0;opacity:0;cursor:pointer;border-radius:50%}
+.my-info{flex:1}
+.my-name{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;letter-spacing:-0.5px}
+.my-meta{font-size:13px;color:var(--text2);margin-top:4px}
+.my-bio{font-size:14px;color:var(--text2);margin-top:8px;line-height:1.6}
+
+/* Toast */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:10px;font-size:14px;z-index:999;box-shadow:0 8px 32px rgba(0,0,0,0.4);transform:translateY(100px);opacity:0;transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1)}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.success{border-color:rgba(34,197,94,0.3)}
+.toast.error{border-color:rgba(232,25,44,0.3)}
+.toast-icon{font-size:18px}
+
+/* Empty */
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;gap:14px;opacity:0.5}
+.empty-icon{font-size:52px}
+.empty-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:700}
+.empty-sub{font-size:14px;color:var(--text2);text-align:center}
+
+/* Search */
+.search-bar{position:relative;flex:1;max-width:320px}
+.search-input{width:100%;padding:9px 14px 9px 36px;background:var(--dark3);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif;outline:none}
+.search-input:focus{border-color:rgba(232,25,44,0.3)}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--text3)}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px}
+
+@media(max-width:768px){
+  .sidebar{width:100%;height:auto;position:static;flex-direction:row;flex-wrap:wrap}
+  .main{margin-left:0;padding:16px}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .form-row{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-text">Tindai</div>
+    <div class="logo-sub">Admin Panel</div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Menu</div>
+    <div class="nav-item active" onclick="switchPage('dashboard')" id="nav-dashboard"><span class="nav-icon">📊</span>Dashboard</div>
+    <div class="nav-item" onclick="switchPage('myprofile')" id="nav-myprofile"><span class="nav-icon">👤</span>Profil Saya</div>
+    <div class="nav-item" onclick="switchPage('profiles')" id="nav-profiles"><span class="nav-icon">👥</span>Kelola Profil</div>
+  </div>
+  <div class="sidebar-bottom">
+    <button class="app-link" onclick="window.open('index.html','_blank')">🔥 Buka Tindai App</button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- DASHBOARD -->
+  <div id="page-dashboard">
+    <div class="page-header">
+      <div><div class="page-title">Dashboard</div><div class="page-sub">Selamat datang di Admin Panel Tindai</div></div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card" data-icon="👥"><div class="stat-num" id="stat-total">0</div><div class="stat-label">Total Profil</div></div>
+      <div class="stat-card" data-icon="✅"><div class="stat-num" id="stat-active">0</div><div class="stat-label">Profil Aktif</div></div>
+      <div class="stat-card" data-icon="🏷️"><div class="stat-num" id="stat-tags">0</div><div class="stat-label">Total Tag</div></div>
+      <div class="stat-card" data-icon="🖼️"><div class="stat-num" id="stat-photos">0</div><div class="stat-label">Punya Foto</div></div>
+    </div>
+    <div class="card">
+      <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:16px">Profil Terbaru</div>
+      <div id="recent-profiles"></div>
+    </div>
+  </div>
+
+  <!-- MY PROFILE -->
+  <div id="page-myprofile" style="display:none">
+    <div class="page-header">
+      <div><div class="page-title">Profil Saya</div><div class="page-sub">Edit tampilan profil kamu di aplikasi</div></div>
+      <button class="btn btn-primary" onclick="saveMyProfile()">💾 Simpan</button>
+    </div>
+    <div class="my-profile-card" id="my-profile-preview">
+      <div class="my-photo" id="my-photo-wrap">
+        <span id="my-photo-emoji">😊</span>
+        <img id="my-photo-img" style="display:none"/>
+        <div class="my-photo-overlay">📷</div>
+        <input type="file" accept="image/*" onchange="handleMyPhoto(this)"/>
+      </div>
+      <div class="my-info">
+        <div class="my-name" id="my-preview-name">Nama Kamu</div>
+        <div class="my-meta" id="my-preview-meta">Jakarta · 25 tahun</div>
+        <div class="my-bio" id="my-preview-bio">Bio kamu akan muncul di sini...</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Nama Lengkap</label>
+          <input class="form-input" id="my-name" placeholder="Nama kamu" oninput="updateMyPreview()"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Usia</label>
+          <input class="form-input" id="my-age" type="number" placeholder="25" min="18" max="99" oninput="updateMyPreview()"/>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Kota / Lokasi</label>
+          <input class="form-input" id="my-location" placeholder="Jakarta Selatan" oninput="updateMyPreview()"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Pekerjaan</label>
+          <input class="form-input" id="my-job" placeholder="Software Engineer"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Bio</label>
+        <textarea class="form-input" id="my-bio" placeholder="Ceritain sedikit tentang diri kamu..." rows="3" oninput="updateMyPreview()"></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Pendidikan</label>
+          <input class="form-input" id="my-edu" placeholder="Universitas Indonesia"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tag / Minat (pisah koma)</label>
+          <input class="form-input" id="my-tags" placeholder="Kopi, Hiking, Musik"/>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROFILES -->
+  <div id="page-profiles" style="display:none">
+    <div class="page-header">
+      <div><div class="page-title">Kelola Profil</div><div class="page-sub">Tambah dan atur profil yang bisa di-swipe</div></div>
+      <div class="header-actions">
+        <div class="search-bar"><span class="search-icon">🔍</span><input class="search-input" id="search-input" placeholder="Cari nama..." oninput="renderProfiles()"/></div>
+        <button class="btn btn-primary" onclick="openAddModal()">＋ Tambah Profil</button>
+      </div>
+    </div>
+    <div class="tabs">
+      <div class="tab active" onclick="filterProfiles('all',this)">Semua</div>
+      <div class="tab" onclick="filterProfiles('active',this)">Aktif</div>
+      <div class="tab" onclick="filterProfiles('inactive',this)">Nonaktif</div>
+    </div>
+    <div class="profiles-grid" id="profiles-grid"></div>
+  </div>
+
+</main>
+</div>
+
+<!-- ADD/EDIT MODAL -->
+<div class="modal-overlay" id="profile-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">Tambah Profil</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Foto Profil</label>
+        <div class="photo-upload" id="photo-upload-area">
+          <input type="file" accept="image/*" id="photo-file-input" onchange="handlePhotoUpload(this)"/>
+          <div class="upload-placeholder" id="upload-placeholder">
+            <div class="upload-icon">🖼️</div>
+            <div class="upload-text">Klik atau seret foto ke sini</div>
+            <div class="upload-sub">JPG, PNG, WEBP · Maks 5MB</div>
+          </div>
+          <img class="photo-preview" id="photo-preview-img"/>
+        </div>
+        <div class="form-hint">Atau gunakan emoji di bawah jika tidak ada foto</div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Emoji (jika tanpa foto)</label>
+          <input class="form-input" id="f-emoji" placeholder="😊" maxlength="2"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Warna Background</label>
+          <input class="form-input" id="f-bg" type="color" value="#1E1A2A" style="height:44px;padding:4px 8px;cursor:pointer"/>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Nama Lengkap *</label>
+          <input class="form-input" id="f-name" placeholder="Nama profil"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Usia *</label>
+          <input class="form-input" id="f-age" type="number" placeholder="25" min="18" max="60"/>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Lokasi</label>
+          <input class="form-input" id="f-loc" placeholder="Jakarta Selatan, 3 km"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Pekerjaan</label>
+          <input class="form-input" id="f-job" placeholder="UI Designer"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Bio</label>
+        <textarea class="form-input" id="f-bio" placeholder="Deskripsi singkat tentang profil ini..." rows="3"></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Pendidikan</label>
+          <input class="form-input" id="f-edu" placeholder="Universitas Indonesia"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tag / Minat (pisah koma)</label>
+          <input class="form-input" id="f-tags" placeholder="Kopi, Musik, Hiking"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Topik Obrolan AI (pisah koma)</label>
+        <input class="form-input" id="f-topics" placeholder="kopi, musik, travel"/>
+        <div class="form-hint">AI akan pakai topik ini saat chat</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <select class="form-input" id="f-status">
+          <option value="active">Aktif (muncul di swipe)</option>
+          <option value="inactive">Nonaktif (disembunyikan)</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal()">Batal</button>
+      <button class="btn btn-primary" onclick="saveProfile()">💾 Simpan Profil</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"><span class="toast-icon" id="toast-icon"></span><span id="toast-msg"></span></div>
+
+<script>
+// ── STORAGE ──
+const PROFILES_KEY = 'tindai_profiles';
+const MY_PROFILE_KEY = 'tindai_my_profile';
+const PHOTOS_KEY = 'tindai_photos';
+
+function loadProfiles() {
+  try { return JSON.parse(localStorage.getItem(PROFILES_KEY)) || getDefaultProfiles(); }
+  catch { return getDefaultProfiles(); }
+}
+function saveProfiles(data) { localStorage.setItem(PROFILES_KEY, JSON.stringify(data)); }
+function loadMyProfile() {
+  try { return JSON.parse(localStorage.getItem(MY_PROFILE_KEY)) || {}; }
+  catch { return {}; }
+}
+function saveMyProfileData(data) { localStorage.setItem(MY_PROFILE_KEY, JSON.stringify(data)); }
+function loadPhotos() {
+  try { return JSON.parse(localStorage.getItem(PHOTOS_KEY)) || {}; }
+  catch { return {}; }
+}
+function savePhotos(data) { localStorage.setItem(PHOTOS_KEY, JSON.stringify(data)); }
+
+function getDefaultProfiles() {
+  return [
+    {id:1,name:"Sari Dewi",age:24,emoji:"😊",bg:"#2A1A1E",loc:"Jakarta Selatan, 3 km",bio:"Suka kopi susu, hiking tipis-tipis, dan adopsi kucing random. Mari ngobrol!",tags:["Kopi","Hiking","Kucing"],job:"UI Designer",edu:"Universitas Indonesia",topics:["kopi","desain","kucing","hiking"],status:"active"},
+    {id:2,name:"Budi Santoso",age:27,emoji:"😎",bg:"#1A1E2A",loc:"Bandung, 8 km",bio:"Software engineer yang lebih jago masak daripada debug.",tags:["Coding","Masak","Foodie"],job:"Software Engineer",edu:"ITB",topics:["coding","masak","kuliner"],status:"active"},
+    {id:3,name:"Dewi Rahayu",age:22,emoji:"🌸",bg:"#1A2A1A",loc:"Jakarta Pusat, 5 km",bio:"Mahasiswi desain tingkat akhir. Suka film indie dan cafe estetik.",tags:["Seni","Film Indie","Cafe"],job:"Mahasiswi Desain",edu:"IKJ",topics:["seni","film","photography"],status:"active"},
+    {id:4,name:"Rian Prasetyo",age:29,emoji:"🎸",bg:"#2A1A2A",loc:"Depok, 12 km",bio:"Musisi indie paruh waktu. Kalau nggak kerja, pasti lagi nulis lagu.",tags:["Musik","Konser","Songwriting"],job:"Music Producer",edu:"ISI Yogyakarta",topics:["musik","konser","gitar"],status:"active"},
+    {id:5,name:"Citra Lestari",age:25,emoji:"📚",bg:"#1E1A2A",loc:"Bekasi, 7 km",bio:"Bookworm & anime enthusiast. Lagi marathon One Piece dari chapter 1.",tags:["Buku","Anime","One Piece"],job:"Content Writer",edu:"Universitas Airlangga",topics:["buku","anime","menulis"],status:"active"},
+  ];
+}
+
+// ── STATE ──
+let profiles = loadProfiles();
+let currentFilter = 'all';
+let editingId = null;
+let currentPhotoData = null;
+let myPhotoData = null;
+
+// ── NAVIGATION ──
+function switchPage(page) {
+  ['dashboard','myprofile','profiles'].forEach(p => {
+    document.getElementById('page-'+p).style.display = p===page?'block':'none';
+    document.getElementById('nav-'+p)?.classList.toggle('active', p===page);
+  });
+  if (page === 'dashboard') updateDashboard();
+  if (page === 'myprofile') loadMyProfileForm();
+  if (page === 'profiles') renderProfiles();
+}
+
+// ── DASHBOARD ──
+function updateDashboard() {
+  profiles = loadProfiles();
+  const active = profiles.filter(p=>p.status==='active');
+  const photos = loadPhotos();
+  const withPhoto = profiles.filter(p=>photos[p.id]);
+  const allTags = profiles.flatMap(p=>p.tags||[]);
+  document.getElementById('stat-total').textContent = profiles.length;
+  document.getElementById('stat-active').textContent = active.length;
+  document.getElementById('stat-tags').textContent = new Set(allTags).size;
+  document.getElementById('stat-photos').textContent = withPhoto.length;
+  const recent = document.getElementById('recent-profiles');
+  const photos2 = loadPhotos();
+  recent.innerHTML = profiles.slice(0,5).map(p => `
+    <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)">
+      <div style="width:40px;height:40px;border-radius:50%;background:${p.bg};display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;overflow:hidden">
+        ${photos2[p.id]?`<img src="${photos2[p.id]}" style="width:100%;height:100%;object-fit:cover"/>`:`<span>${p.emoji}</span>`}
+      </div>
+      <div style="flex:1"><div style="font-size:14px;font-weight:500">${p.name}</div><div style="font-size:12px;color:var(--text2)">${p.loc} · ${p.age} tahun</div></div>
+      <span class="status-badge ${p.status==='active'?'status-active':'status-inactive'}">${p.status==='active'?'Aktif':'Nonaktif'}</span>
+    </div>`).join('');
+}
+
+// ── MY PROFILE ──
+function loadMyProfileForm() {
+  const mp = loadMyProfile();
+  document.getElementById('my-name').value = mp.name || '';
+  document.getElementById('my-age').value = mp.age || '';
+  document.getElementById('my-location').value = mp.location || '';
+  document.getElementById('my-job').value = mp.job || '';
+  document.getElementById('my-bio').value = mp.bio || '';
+  document.getElementById('my-edu').value = mp.edu || '';
+  document.getElementById('my-tags').value = (mp.tags||[]).join(', ');
+  const photos = loadPhotos();
+  if (photos['me']) {
+    document.getElementById('my-photo-img').src = photos['me'];
+    document.getElementById('my-photo-img').style.display = 'block';
+    document.getElementById('my-photo-emoji').style.display = 'none';
+  }
+  updateMyPreview();
+}
+function updateMyPreview() {
+  const name = document.getElementById('my-name').value || 'Nama Kamu';
+  const age = document.getElementById('my-age').value || '25';
+  const loc = document.getElementById('my-location').value || 'Jakarta';
+  const bio = document.getElementById('my-bio').value || 'Bio kamu akan muncul di sini...';
+  document.getElementById('my-preview-name').textContent = name;
+  document.getElementById('my-preview-meta').textContent = `${loc} · ${age} tahun`;
+  document.getElementById('my-preview-bio').textContent = bio;
+}
+function handleMyPhoto(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 5*1024*1024) { showToast('Foto terlalu besar (maks 5MB)','error'); return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    myPhotoData = e.target.result;
+    document.getElementById('my-photo-img').src = myPhotoData;
+    document.getElementById('my-photo-img').style.display = 'block';
+    document.getElementById('my-photo-emoji').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+function saveMyProfile() {
+  const data = {
+    name: document.getElementById('my-name').value,
+    age: document.getElementById('my-age').value,
+    location: document.getElementById('my-location').value,
+    job: document.getElementById('my-job').value,
+    bio: document.getElementById('my-bio').value,
+    edu: document.getElementById('my-edu').value,
+    tags: document.getElementById('my-tags').value.split(',').map(t=>t.trim()).filter(Boolean),
+  };
+  saveMyProfileData(data);
+  if (myPhotoData) {
+    const photos = loadPhotos();
+    photos['me'] = myPhotoData;
+    savePhotos(photos);
+  }
+  showToast('Profil berhasil disimpan!','success');
+}
+
+// ── PROFILES LIST ──
+function filterProfiles(f, el) {
+  currentFilter = f;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderProfiles();
+}
+function renderProfiles() {
+  profiles = loadProfiles();
+  const photos = loadPhotos();
+  const search = document.getElementById('search-input')?.value.toLowerCase() || '';
+  let filtered = profiles.filter(p => {
+    const matchFilter = currentFilter==='all' || p.status===currentFilter;
+    const matchSearch = !search || p.name.toLowerCase().includes(search);
+    return matchFilter && matchSearch;
+  });
+  const grid = document.getElementById('profiles-grid');
+  if (filtered.length === 0) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">👻</div><div class="empty-title">Tidak ada profil</div><div class="empty-sub">Tambah profil baru atau ubah filter pencarian</div></div>`;
+    return;
+  }
+  grid.innerHTML = filtered.map(p => `
+    <div class="profile-card-item">
+      <div class="profile-card-photo">
+        ${photos[p.id]?`<img src="${photos[p.id]}" style="width:100%;height:100%;object-fit:cover"/>`:`<span>${p.emoji||'👤'}</span>`}
+        <div style="position:absolute;top:8px;right:8px"><span class="status-badge ${p.status==='active'?'status-active':'status-inactive'}">${p.status==='active'?'Aktif':'Off'}</span></div>
+      </div>
+      <div class="profile-card-body">
+        <div class="profile-card-name">${p.name}</div>
+        <div class="profile-card-meta">📍 ${p.loc} · ${p.age} tahun</div>
+        <div class="profile-card-meta" style="margin-top:2px">💼 ${p.job||'-'}</div>
+        <div class="profile-card-tags">${(p.tags||[]).map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+        <div class="profile-card-actions">
+          <button class="btn btn-ghost btn-sm" onclick="openEditModal(${p.id})" style="flex:1">✏️ Edit</button>
+          <button class="btn btn-danger btn-sm btn-icon" onclick="deleteProfile(${p.id})">🗑</button>
+          <button class="btn btn-ghost btn-sm btn-icon" onclick="toggleStatus(${p.id})">${p.status==='active'?'👁':'▶'}</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+// ── MODAL ──
+function openAddModal() {
+  editingId = null;
+  currentPhotoData = null;
+  document.getElementById('modal-title').textContent = 'Tambah Profil Baru';
+  clearForm();
+  document.getElementById('profile-modal').classList.add('open');
+}
+function openEditModal(id) {
+  editingId = id;
+  const p = profiles.find(x=>x.id===id);
+  if (!p) return;
+  document.getElementById('modal-title').textContent = 'Edit Profil';
+  document.getElementById('f-emoji').value = p.emoji||'';
+  document.getElementById('f-bg').value = p.bg||'#1E1A2A';
+  document.getElementById('f-name').value = p.name||'';
+  document.getElementById('f-age').value = p.age||'';
+  document.getElementById('f-loc').value = p.loc||'';
+  document.getElementById('f-job').value = p.job||'';
+  document.getElementById('f-bio').value = p.bio||'';
+  document.getElementById('f-edu').value = p.edu||'';
+  document.getElementById('f-tags').value = (p.tags||[]).join(', ');
+  document.getElementById('f-topics').value = (p.topics||[]).join(', ');
+  document.getElementById('f-status').value = p.status||'active';
+  const photos = loadPhotos();
+  if (photos[id]) {
+    document.getElementById('photo-preview-img').src = photos[id];
+    document.getElementById('photo-preview-img').style.display = 'block';
+    document.getElementById('upload-placeholder').style.display = 'none';
+    currentPhotoData = photos[id];
+  } else {
+    document.getElementById('photo-preview-img').style.display = 'none';
+    document.getElementById('upload-placeholder').style.display = 'flex';
+  }
+  document.getElementById('profile-modal').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('profile-modal').classList.remove('open');
+  editingId = null;
+  currentPhotoData = null;
+}
+function clearForm() {
+  ['f-emoji','f-name','f-age','f-loc','f-job','f-bio','f-edu','f-tags','f-topics'].forEach(id=>{
+    document.getElementById(id).value='';
+  });
+  document.getElementById('f-emoji').value = '😊';
+  document.getElementById('f-bg').value = '#1E1A2A';
+  document.getElementById('f-status').value = 'active';
+  document.getElementById('photo-preview-img').style.display = 'none';
+  document.getElementById('upload-placeholder').style.display = 'flex';
+  document.getElementById('photo-file-input').value = '';
+}
+function handlePhotoUpload(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 5*1024*1024) { showToast('Foto terlalu besar (maks 5MB)','error'); return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    currentPhotoData = e.target.result;
+    document.getElementById('photo-preview-img').src = currentPhotoData;
+    document.getElementById('photo-preview-img').style.display = 'block';
+    document.getElementById('upload-placeholder').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+function saveProfile() {
+  const name = document.getElementById('f-name').value.trim();
+  const age = parseInt(document.getElementById('f-age').value);
+  if (!name) { showToast('Nama wajib diisi!','error'); return; }
+  if (!age || age < 18) { showToast('Usia tidak valid!','error'); return; }
+  const profileData = {
+    id: editingId || Date.now(),
+    emoji: document.getElementById('f-emoji').value || '😊',
+    bg: document.getElementById('f-bg').value || '#1E1A2A',
+    name, age,
+    loc: document.getElementById('f-loc').value || 'Indonesia',
+    job: document.getElementById('f-job').value,
+    bio: document.getElementById('f-bio').value,
+    edu: document.getElementById('f-edu').value,
+    tags: document.getElementById('f-tags').value.split(',').map(t=>t.trim()).filter(Boolean),
+    topics: document.getElementById('f-topics').value.split(',').map(t=>t.trim()).filter(Boolean),
+    status: document.getElementById('f-status').value,
+  };
+  profiles = loadProfiles();
+  if (editingId) {
+    const idx = profiles.findIndex(p=>p.id===editingId);
+    if (idx !== -1) profiles[idx] = profileData;
+  } else {
+    profiles.push(profileData);
+  }
+  saveProfiles(profiles);
+  if (currentPhotoData) {
+    const photos = loadPhotos();
+    photos[profileData.id] = currentPhotoData;
+    savePhotos(photos);
+  }
+  closeModal();
+  renderProfiles();
+  showToast(editingId?'Profil berhasil diupdate!':'Profil baru berhasil ditambahkan!','success');
+}
+function deleteProfile(id) {
+  if (!confirm('Hapus profil ini?')) return;
+  profiles = loadProfiles();
+  profiles = profiles.filter(p=>p.id!==id);
+  saveProfiles(profiles);
+  const photos = loadPhotos();
+  delete photos[id];
+  savePhotos(photos);
+  renderProfiles();
+  showToast('Profil dihapus','success');
+}
+function toggleStatus(id) {
+  profiles = loadProfiles();
+  const p = profiles.find(x=>x.id===id);
+  if (!p) return;
+  p.status = p.status==='active'?'inactive':'active';
+  saveProfiles(profiles);
+  renderProfiles();
+  showToast(`Profil ${p.status==='active'?'diaktifkan':'dinonaktifkan'}`,'success');
+}
+
+// ── TOAST ──
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  document.getElementById('toast-icon').textContent = type==='success'?'✅':'❌';
+  t.className = `toast ${type} show`;
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+// ── INIT ──
+switchPage('dashboard');
+</script>
+</body>
+</html>

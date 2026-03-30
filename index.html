@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Tindai"/>
+<meta name="theme-color" content="#E8192C"/>
+<title>Tindai</title>
+<link rel="manifest" href="manifest.json"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --red: #E8192C;
+  --pink: #FF6B8A;
+  --rose: #FF8FA3;
+  --dark: #0D0B0C;
+  --dark2: #1A1518;
+  --dark3: #251E22;
+  --card: #1E181C;
+  --border: rgba(255,255,255,0.08);
+  --text: #FFFFFF;
+  --text2: rgba(255,255,255,0.55);
+  --text3: rgba(255,255,255,0.25);
+  --grad: linear-gradient(135deg, #E8192C 0%, #FF6B8A 100%);
+  --grad2: linear-gradient(180deg, transparent 0%, rgba(13,11,12,0.95) 100%);
+  --r: 20px;
+  --rm: 14px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-family:'DM Sans',sans-serif;color:var(--text)}
+#root{width:100%;height:100%;display:flex;flex-direction:column;max-width:480px;margin:0 auto;position:relative;overflow:hidden}
+
+/* ── SPLASH ── */
+#splash{position:absolute;inset:0;background:var(--dark);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;gap:20px}
+.splash-logo{font-family:'Syne',sans-serif;font-size:52px;font-weight:800;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-2px}
+.splash-tagline{font-size:15px;color:var(--text2);letter-spacing:0.5px}
+.splash-hearts{font-size:32px;animation:heartbeat 1.4s ease-in-out infinite}
+@keyframes heartbeat{0%,100%{transform:scale(1)}50%{transform:scale(1.2)}}
+.splash-bar{width:160px;height:3px;background:var(--dark3);border-radius:99px;overflow:hidden;margin-top:12px}
+.splash-progress{height:100%;background:var(--grad);border-radius:99px;animation:progress 2s ease-in-out forwards}
+@keyframes progress{0%{width:0%}100%{width:100%}}
+
+/* ── SCREENS ── */
+.screen{position:absolute;inset:0;display:none;flex-direction:column;background:var(--dark)}
+.screen.active{display:flex}
+
+/* ── TOPBAR ── */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:52px 20px 12px;flex-shrink:0}
+.topbar-logo{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-1px}
+.topbar-btn{width:40px;height:40px;border-radius:50%;border:1px solid var(--border);background:var(--dark3);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s;color:var(--text2);font-size:18px}
+.topbar-btn:active{transform:scale(0.9);background:var(--card)}
+.topbar-btn.has-notif{position:relative}
+.topbar-btn.has-notif::after{content:'';position:absolute;top:8px;right:8px;width:8px;height:8px;background:var(--red);border-radius:50%;border:2px solid var(--dark)}
+
+/* ── SWIPE SCREEN ── */
+#swipe-screen .content{flex:1;overflow:hidden;position:relative;padding:0 16px}
+
+/* Card Stack */
+.card-stack{position:relative;width:100%;height:100%}
+.profile-card{
+  position:absolute;inset:0;
+  border-radius:24px;overflow:hidden;
+  background:var(--card);
+  cursor:grab;user-select:none;
+  transition:transform 0.08s ease;
+  will-change:transform;
+  box-shadow:0 20px 60px rgba(0,0,0,0.5);
+}
+.profile-card:active{cursor:grabbing}
+.card-photo{width:100%;height:100%;object-fit:cover;display:flex;align-items:center;justify-content:center;font-size:120px;background:var(--dark3)}
+.card-gradient{position:absolute;inset:0;background:var(--grad2)}
+.card-info{position:absolute;bottom:0;left:0;right:0;padding:20px 20px 28px}
+.card-name-row{display:flex;align-items:baseline;gap:10px}
+.card-name{font-family:'Syne',sans-serif;font-size:28px;font-weight:700;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,0.5)}
+.card-age{font-size:22px;color:rgba(255,255,255,0.8);font-weight:300}
+.card-loc{font-size:13px;color:rgba(255,255,255,0.6);margin-top:4px;display:flex;align-items:center;gap:4px}
+.card-bio{font-size:14px;color:rgba(255,255,255,0.75);margin-top:8px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.card-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.card-tag{padding:4px 12px;border-radius:99px;background:rgba(255,255,255,0.12);backdrop-filter:blur(8px);font-size:12px;color:rgba(255,255,255,0.8)}
+
+/* Swipe Labels */
+.swipe-badge{
+  position:absolute;top:32px;padding:8px 20px;border-radius:12px;
+  font-family:'Syne',sans-serif;font-size:24px;font-weight:800;
+  letter-spacing:2px;opacity:0;transition:opacity 0.1s;
+  pointer-events:none;z-index:10;
+  border-width:3px;border-style:solid;
+}
+.badge-like{left:20px;color:#4ADE80;border-color:#4ADE80;text-shadow:0 0 20px rgba(74,222,128,0.5)}
+.badge-nope{right:20px;color:#F87171;border-color:#F87171;text-shadow:0 0 20px rgba(248,113,113,0.5)}
+.badge-super{top:50%;left:50%;transform:translate(-50%,-50%);color:#60A5FA;border-color:#60A5FA;text-shadow:0 0 20px rgba(96,165,250,0.5);font-size:20px}
+
+/* Behind card placeholders */
+.card-behind{pointer-events:none;transform-origin:bottom center}
+
+/* Empty state */
+.empty-cards{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:16px;opacity:0.5}
+.empty-icon{font-size:64px}
+.empty-text{font-family:'Syne',sans-serif;font-size:18px;font-weight:700}
+.empty-sub{font-size:14px;color:var(--text2);text-align:center;max-width:220px}
+
+/* Action Buttons */
+.action-row{display:flex;align-items:center;justify-content:center;gap:16px;padding:16px 24px 20px;flex-shrink:0}
+.act-btn{border:none;cursor:pointer;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:transform 0.15s,box-shadow 0.15s;flex-shrink:0}
+.act-btn:active{transform:scale(0.88)!important}
+.btn-pass{width:56px;height:56px;background:var(--dark3);border:1.5px solid rgba(248,113,113,0.4);font-size:22px;color:#F87171;box-shadow:0 0 20px rgba(248,113,113,0.1)}
+.btn-super{width:48px;height:48px;background:var(--dark3);border:1.5px solid rgba(96,165,250,0.4);font-size:18px;color:#60A5FA;box-shadow:0 0 20px rgba(96,165,250,0.1)}
+.btn-like{width:64px;height:64px;background:var(--grad);font-size:26px;color:#fff;box-shadow:0 8px 24px rgba(232,25,44,0.45)}
+.btn-boost{width:48px;height:48px;background:var(--dark3);border:1.5px solid rgba(168,85,247,0.4);font-size:18px;color:#A855F7;box-shadow:0 0 20px rgba(168,85,247,0.1)}
+.btn-back{width:40px;height:40px;background:var(--dark3);border:1.5px solid var(--border);font-size:16px;color:var(--text2)}
+
+/* ── BOTTOM NAV ── */
+.bottom-nav{display:flex;align-items:center;justify-content:space-around;padding:12px 0 28px;background:var(--dark);border-top:1px solid var(--border);flex-shrink:0}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:4px 16px;border-radius:12px;transition:all 0.2s;position:relative}
+.nav-item.active .nav-icon-wrap{color:var(--red)}
+.nav-item.active .nav-label{color:var(--red)}
+.nav-icon-wrap{font-size:22px;color:var(--text3);transition:color 0.2s}
+.nav-label{font-size:10px;color:var(--text3);font-weight:500;letter-spacing:0.3px;transition:color 0.2s}
+.nav-dot{position:absolute;top:2px;right:12px;width:8px;height:8px;background:var(--red);border-radius:50%;border:2px solid var(--dark)}
+
+/* ── MATCH OVERLAY ── */
+#match-overlay{
+  position:fixed;inset:0;z-index:500;
+  display:none;flex-direction:column;align-items:center;justify-content:center;
+  background:rgba(13,11,12,0.96);backdrop-filter:blur(20px);
+  gap:0;
+}
+#match-overlay.show{display:flex;animation:fadeIn 0.4s ease}
+@keyframes fadeIn{from{opacity:0;transform:scale(0.95)}to{opacity:1;transform:scale(1)}}
+.match-bg-blur{position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(232,25,44,0.15) 0%,transparent 70%);pointer-events:none}
+.match-emoji-row{display:flex;align-items:center;gap:24px;margin-bottom:28px;z-index:1}
+.match-emoji-card{width:90px;height:90px;border-radius:50%;background:var(--dark3);border:3px solid var(--red);display:flex;align-items:center;justify-content:center;font-size:48px;box-shadow:0 0 40px rgba(232,25,44,0.3);animation:popIn 0.5s cubic-bezier(0.175,0.885,0.32,1.275) both}
+.match-emoji-card:nth-child(3){animation-delay:0.15s}
+@keyframes popIn{from{transform:scale(0) rotate(-20deg)}to{transform:scale(1) rotate(0)}}
+.match-heart{font-size:36px;z-index:1;animation:heartbeat2 0.8s ease-in-out infinite;color:var(--red)}
+@keyframes heartbeat2{0%,100%{transform:scale(1)}50%{transform:scale(1.3)}}
+.match-its-a{font-size:14px;color:var(--text2);letter-spacing:3px;text-transform:uppercase;font-weight:500;z-index:1;margin-bottom:8px}
+.match-title{font-family:'Syne',sans-serif;font-size:44px;font-weight:800;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;z-index:1;letter-spacing:-1px;line-height:1}
+.match-sub{font-size:15px;color:var(--text2);z-index:1;margin:12px 0 36px;text-align:center;padding:0 30px;line-height:1.5}
+.match-actions{display:flex;flex-direction:column;gap:12px;width:100%;max-width:280px;z-index:1}
+.match-btn-primary{padding:16px;border-radius:var(--r);background:var(--grad);border:none;font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:#fff;cursor:pointer;transition:transform 0.15s,box-shadow 0.15s;box-shadow:0 8px 24px rgba(232,25,44,0.4);letter-spacing:0.5px}
+.match-btn-primary:active{transform:scale(0.97)}
+.match-btn-ghost{padding:14px;border-radius:var(--r);background:transparent;border:1px solid var(--border);font-size:14px;color:var(--text2);cursor:pointer;transition:all 0.15s}
+.match-btn-ghost:active{background:var(--dark3)}
+
+/* ── CHAT LIST ── */
+#chat-screen .content{flex:1;overflow-y:auto;padding:8px 0}
+.new-matches{padding:16px 20px 0;margin-bottom:8px}
+.section-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--text2);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
+.new-matches-scroll{display:flex;gap:12px;overflow-x:auto;padding-bottom:12px;-webkit-overflow-scrolling:touch}
+.new-matches-scroll::-webkit-scrollbar{display:none}
+.new-match-item{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;flex-shrink:0}
+.new-match-avatar{width:62px;height:62px;border-radius:50%;background:var(--dark3);display:flex;align-items:center;justify-content:center;font-size:32px;border:2.5px solid var(--red);position:relative;box-shadow:0 0 16px rgba(232,25,44,0.3)}
+.new-match-avatar::after{content:'';position:absolute;inset:-4px;border-radius:50%;border:1.5px solid rgba(232,25,44,0.3);animation:pulse2 2s ease-in-out infinite}
+@keyframes pulse2{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.05);opacity:0.5}}
+.new-match-name{font-size:11px;color:var(--text2);font-weight:500}
+.chat-divider{height:1px;background:var(--border);margin:0 20px 8px}
+.chat-item{display:flex;align-items:center;gap:14px;padding:14px 20px;cursor:pointer;transition:background 0.15s;position:relative}
+.chat-item:active{background:var(--dark3)}
+.chat-avatar{width:54px;height:54px;border-radius:50%;background:var(--dark3);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;border:1.5px solid var(--border)}
+.chat-avatar.online{border-color:var(--red);box-shadow:0 0 12px rgba(232,25,44,0.25)}
+.chat-info{flex:1;min-width:0}
+.chat-name{font-size:15px;font-weight:500;color:var(--text)}
+.chat-preview{font-size:13px;color:var(--text2);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chat-meta{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0}
+.chat-time{font-size:11px;color:var(--text3)}
+.chat-unread{width:20px;height:20px;border-radius:50%;background:var(--grad);font-size:11px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center}
+.empty-chat{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:14px;opacity:0.4;padding:40px}
+.empty-chat .icon{font-size:56px}
+.empty-chat .title{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;text-align:center}
+.empty-chat .sub{font-size:14px;color:var(--text2);text-align:center}
+
+/* ── CHAT ROOM ── */
+#room-screen .topbar{border-bottom:1px solid var(--border);padding-bottom:16px}
+.room-avatar{width:40px;height:40px;border-radius:50%;background:var(--dark3);display:flex;align-items:center;justify-content:center;font-size:22px;border:1.5px solid var(--red);box-shadow:0 0 12px rgba(232,25,44,0.2)}
+.room-info .name{font-family:'Syne',sans-serif;font-size:17px;font-weight:700}
+.room-info .status{font-size:12px;color:#4ADE80;display:flex;align-items:center;gap:4px}
+.room-info .status::before{content:'';width:6px;height:6px;border-radius:50%;background:#4ADE80;display:inline-block}
+.messages{flex:1;overflow-y:auto;padding:16px 16px 8px;display:flex;flex-direction:column;gap:10px;-webkit-overflow-scrolling:touch}
+.messages::-webkit-scrollbar{display:none}
+.msg-wrap{display:flex;flex-direction:column;gap:2px}
+.msg-wrap.me{align-items:flex-end}
+.msg-wrap.them{align-items:flex-start}
+.msg{max-width:76%;padding:12px 16px;border-radius:20px;font-size:14px;line-height:1.55;word-break:break-word;position:relative}
+.msg.me{background:var(--grad);color:#fff;border-bottom-right-radius:6px;box-shadow:0 4px 16px rgba(232,25,44,0.25)}
+.msg.them{background:var(--dark3);color:var(--text);border-bottom-left-radius:6px;border:1px solid var(--border)}
+.msg.typing{opacity:0.6;font-style:italic;font-size:13px}
+.msg-time{font-size:10px;color:var(--text3);padding:0 4px}
+.msg-avatar{width:28px;height:28px;border-radius:50%;background:var(--card);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.them-row{display:flex;align-items:flex-end;gap:8px}
+.input-area{padding:10px 14px 28px;border-top:1px solid var(--border);background:var(--dark);display:flex;align-items:center;gap:10px;flex-shrink:0}
+.msg-input{flex:1;background:var(--dark3);border:1px solid var(--border);border-radius:24px;padding:12px 18px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);outline:none;transition:border-color 0.2s}
+.msg-input:focus{border-color:rgba(232,25,44,0.4)}
+.msg-input::placeholder{color:var(--text3)}
+.send-btn{width:44px;height:44px;border-radius:50%;background:var(--grad);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:#fff;box-shadow:0 4px 16px rgba(232,25,44,0.35);transition:transform 0.15s,box-shadow 0.15s;flex-shrink:0}
+.send-btn:active{transform:scale(0.9)}
+.send-btn:disabled{opacity:0.4}
+
+/* ── PROFILE SCREEN ── */
+#profile-screen .content{flex:1;overflow-y:auto;padding:0 20px 20px}
+.profile-hero{width:110px;height:110px;border-radius:50%;background:var(--dark3);border:3px solid var(--red);display:flex;align-items:center;justify-content:center;font-size:56px;margin:20px auto 14px;box-shadow:0 0 32px rgba(232,25,44,0.25)}
+.profile-name{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;text-align:center;letter-spacing:-0.5px}
+.profile-tagline{font-size:14px;color:var(--text2);text-align:center;margin-top:4px}
+.stat-row{display:flex;gap:12px;margin:20px 0}
+.stat-card{flex:1;background:var(--dark3);border:1px solid var(--border);border-radius:var(--rm);padding:14px;text-align:center}
+.stat-num{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.stat-label{font-size:11px;color:var(--text2);margin-top:4px;font-weight:500}
+.section-card{background:var(--dark3);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:12px}
+.section-head{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--text2);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
+.pref-item{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
+.pref-item:last-child{border-bottom:none}
+.pref-label{font-size:14px;color:var(--text2)}
+.pref-val{font-size:14px;color:var(--text);font-weight:500}
+.upgrade-banner{background:var(--grad);border-radius:var(--r);padding:20px;display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;overflow:hidden;position:relative}
+.upgrade-banner::after{content:'✦';position:absolute;right:-10px;top:-10px;font-size:80px;opacity:0.08;color:#fff}
+.upgrade-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:#fff}
+.upgrade-sub{font-size:12px;color:rgba(255,255,255,0.7);margin-top:4px}
+.upgrade-btn{background:#fff;color:var(--red);font-family:'Syne',sans-serif;font-size:13px;font-weight:800;padding:10px 18px;border-radius:99px;border:none;cursor:pointer;white-space:nowrap}
+
+/* ── UTILS ── */
+.hidden{display:none!important}
+button{font-family:'DM Sans',sans-serif}
+input{font-family:'DM Sans',sans-serif}
+::-webkit-scrollbar{width:0;height:0}
+
+/* Install banner */
+#install-banner{position:fixed;bottom:84px;left:50%;transform:translateX(-50%);background:var(--dark3);border:1px solid var(--border);border-radius:var(--r);padding:14px 18px;display:none;align-items:center;gap:12px;z-index:200;width:calc(100% - 32px);max-width:448px;box-shadow:0 8px 32px rgba(0,0,0,0.5)}
+#install-banner.show{display:flex}
+.install-icon{font-size:28px}
+.install-text{flex:1}
+.install-title{font-size:14px;font-weight:500}
+.install-sub{font-size:12px;color:var(--text2);margin-top:2px}
+.install-btn{background:var(--grad);border:none;color:#fff;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;padding:8px 16px;border-radius:99px;cursor:pointer;flex-shrink:0}
+.install-close{font-size:18px;color:var(--text3);cursor:pointer;padding:4px}
+</style>
+</head>
+<body>
+<div id="root">
+
+<!-- SPLASH -->
+<div id="splash">
+  <div class="splash-hearts">💘</div>
+  <div class="splash-logo">Tindai</div>
+  <div class="splash-tagline">Temukan yang spesial untukmu</div>
+  <div class="splash-bar"><div class="splash-progress"></div></div>
+</div>
+
+<!-- SWIPE SCREEN -->
+<div class="screen" id="swipe-screen">
+  <div class="topbar">
+    <button class="topbar-btn" onclick="showScreen('profile-screen')">⚙️</button>
+    <div class="topbar-logo">Tindai</div>
+    <button class="topbar-btn has-notif" id="chat-nav-btn" onclick="showScreen('chat-screen')">💬</button>
+  </div>
+  <div class="content" id="swipe-content">
+    <div class="card-stack" id="card-stack"></div>
+  </div>
+  <div class="action-row">
+    <button class="act-btn btn-back" onclick="undoSwipe()">↩</button>
+    <button class="act-btn btn-pass" onclick="doSwipe('left')">✕</button>
+    <button class="act-btn btn-like" onclick="doSwipe('right')">♥</button>
+    <button class="act-btn btn-super" onclick="doSwipe('super')">★</button>
+    <button class="act-btn btn-boost" onclick="doSwipe('boost')">⚡</button>
+  </div>
+  <nav class="bottom-nav">
+    <div class="nav-item active" onclick="showScreen('swipe-screen')">
+      <div class="nav-icon-wrap">🔥</div>
+      <div class="nav-label">Temukan</div>
+    </div>
+    <div class="nav-item" onclick="showScreen('chat-screen')">
+      <div class="nav-icon-wrap">💬</div>
+      <div class="nav-label">Pesan</div>
+      <div class="nav-dot" id="msg-dot" style="display:none"></div>
+    </div>
+    <div class="nav-item" onclick="showScreen('profile-screen')">
+      <div class="nav-icon-wrap">😊</div>
+      <div class="nav-label">Profil</div>
+    </div>
+  </nav>
+</div>
+
+<!-- CHAT LIST SCREEN -->
+<div class="screen" id="chat-screen">
+  <div class="topbar">
+    <button class="topbar-btn" onclick="showScreen('swipe-screen')">←</button>
+    <span class="topbar-logo" style="font-size:22px">Pesan</span>
+    <button class="topbar-btn">🔍</button>
+  </div>
+  <div class="content" id="chat-content"></div>
+  <nav class="bottom-nav">
+    <div class="nav-item" onclick="showScreen('swipe-screen')">
+      <div class="nav-icon-wrap">🔥</div>
+      <div class="nav-label">Temukan</div>
+    </div>
+    <div class="nav-item active" onclick="showScreen('chat-screen')">
+      <div class="nav-icon-wrap">💬</div>
+      <div class="nav-label">Pesan</div>
+    </div>
+    <div class="nav-item" onclick="showScreen('profile-screen')">
+      <div class="nav-icon-wrap">😊</div>
+      <div class="nav-label">Profil</div>
+    </div>
+  </nav>
+</div>
+
+<!-- CHAT ROOM SCREEN -->
+<div class="screen" id="room-screen">
+  <div class="topbar" style="padding-bottom:14px">
+    <button class="topbar-btn" onclick="showScreen('chat-screen')">←</button>
+    <div style="display:flex;align-items:center;gap:10px;flex:1;justify-content:center">
+      <div class="room-avatar" id="room-avatar-el"></div>
+      <div class="room-info">
+        <div class="name" id="room-name-el"></div>
+        <div class="status">Online</div>
+      </div>
+    </div>
+    <button class="topbar-btn">⋯</button>
+  </div>
+  <div class="messages" id="messages-el"></div>
+  <div class="input-area">
+    <input class="msg-input" id="msg-input" placeholder="Ketik pesan..." autocomplete="off"/>
+    <button class="send-btn" id="send-btn" onclick="sendMessage()">➤</button>
+  </div>
+</div>
+
+<!-- PROFILE SCREEN -->
+<div class="screen" id="profile-screen">
+  <div class="topbar">
+    <button class="topbar-btn" onclick="showScreen('swipe-screen')">←</button>
+    <span class="topbar-logo" style="font-size:22px">Profil</span>
+    <button class="topbar-btn">✏️</button>
+  </div>
+  <div class="content">
+    <div class="upgrade-banner">
+      <div>
+        <div class="upgrade-title">Tindai Gold ✨</div>
+        <div class="upgrade-sub">Lihat siapa yang suka kamu</div>
+      </div>
+      <button class="upgrade-btn">Upgrade</button>
+    </div>
+    <div class="profile-hero">😊</div>
+    <div class="profile-name">Kamu</div>
+    <div class="profile-tagline">Jakarta · Aktif sekarang</div>
+    <div class="stat-row">
+      <div class="stat-card"><div class="stat-num" id="stat-likes">0</div><div class="stat-label">Suka</div></div>
+      <div class="stat-card"><div class="stat-num" id="stat-matches">0</div><div class="stat-label">Match</div></div>
+      <div class="stat-card"><div class="stat-num" id="stat-chats">0</div><div class="stat-label">Pesan</div></div>
+    </div>
+    <div class="section-card">
+      <div class="section-head">Preferensi</div>
+      <div class="pref-item"><span class="pref-label">Rentang usia</span><span class="pref-val">20–35 tahun</span></div>
+      <div class="pref-item"><span class="pref-label">Jarak maksimal</span><span class="pref-val">25 km</span></div>
+      <div class="pref-item"><span class="pref-label">Tampilkan ke</span><span class="pref-val">Semua</span></div>
+    </div>
+    <div class="section-card">
+      <div class="section-head">Pengaturan</div>
+      <div class="pref-item"><span class="pref-label">Notifikasi</span><span class="pref-val">Aktif</span></div>
+      <div class="pref-item"><span class="pref-label">Mode gelap</span><span class="pref-val">Selalu</span></div>
+      <div class="pref-item"><span class="pref-label">Bahasa</span><span class="pref-val">Indonesia</span></div>
+    </div>
+  </div>
+  <nav class="bottom-nav">
+    <div class="nav-item" onclick="showScreen('swipe-screen')">
+      <div class="nav-icon-wrap">🔥</div>
+      <div class="nav-label">Temukan</div>
+    </div>
+    <div class="nav-item" onclick="showScreen('chat-screen')">
+      <div class="nav-icon-wrap">💬</div>
+      <div class="nav-label">Pesan</div>
+    </div>
+    <div class="nav-item active" onclick="showScreen('profile-screen')">
+      <div class="nav-icon-wrap">😊</div>
+      <div class="nav-label">Profil</div>
+    </div>
+  </nav>
+</div>
+
+<!-- MATCH OVERLAY -->
+<div id="match-overlay">
+  <div class="match-bg-blur"></div>
+  <div class="match-its-a">It's a match!</div>
+  <div class="match-title">Cocok! 🎉</div>
+  <div class="match-sub" id="match-sub-text"></div>
+  <div class="match-emoji-row">
+    <div class="match-emoji-card">😊</div>
+    <div class="match-heart">♥</div>
+    <div class="match-emoji-card" id="match-emoji-el"></div>
+  </div>
+  <div class="match-actions">
+    <button class="match-btn-primary" onclick="openMatchChat()">💬 Kirim Pesan Sekarang</button>
+    <button class="match-btn-ghost" onclick="closeMatch()">Lanjut Swipe</button>
+  </div>
+</div>
+
+<!-- Install Banner -->
+<div id="install-banner">
+  <div class="install-icon">📱</div>
+  <div class="install-text">
+    <div class="install-title">Install Tindai</div>
+    <div class="install-sub">Tambahkan ke layar utama HP kamu</div>
+  </div>
+  <button class="install-btn" id="install-btn-el">Install</button>
+  <div class="install-close" onclick="document.getElementById('install-banner').classList.remove('show')">✕</div>
+</div>
+
+<script>
+'use strict';
+
+// ── LOAD FROM ADMIN PANEL (localStorage) ──
+const DEFAULT_PROFILES = [
+  { id:1, name:"Sari Dewi", age:24, emoji:"😊", bg:"#2A1A1E", loc:"Jakarta Selatan, 3 km", bio:"Suka kopi susu, hiking tipis-tipis, dan adopsi kucing random. Mari ngobrol!", tags:["Kopi","Hiking","Kucing"], job:"UI Designer", edu:"Universitas Indonesia", topics:["kopi","desain","kucing","hiking"], status:"active" },
+  { id:2, name:"Budi Santoso", age:27, emoji:"😎", bg:"#1A1E2A", loc:"Bandung, 8 km", bio:"Software engineer yang lebih jago masak daripada debug. Nasi padang > segalanya.", tags:["Coding","Masak","Foodie"], job:"Software Engineer", edu:"ITB", topics:["coding","masak","kuliner"], status:"active" },
+  { id:3, name:"Dewi Rahayu", age:22, emoji:"🌸", bg:"#1A2A1A", loc:"Jakarta Pusat, 5 km", bio:"Mahasiswi desain tingkat akhir. Suka film indie dan cafe estetik.", tags:["Seni","Film Indie","Cafe"], job:"Mahasiswi Desain", edu:"IKJ", topics:["seni","film","photography"], status:"active" },
+  { id:4, name:"Rian Prasetyo", age:29, emoji:"🎸", bg:"#2A1A2A", loc:"Depok, 12 km", bio:"Musisi indie paruh waktu. Kalau nggak kerja, pasti lagi nulis lagu.", tags:["Musik","Konser","Songwriting"], job:"Music Producer", edu:"ISI Yogyakarta", topics:["musik","konser","gitar"], status:"active" },
+  { id:5, name:"Citra Lestari", age:25, emoji:"📚", bg:"#1E1A2A", loc:"Bekasi, 7 km", bio:"Bookworm & anime enthusiast. Lagi marathon One Piece dari chapter 1!", tags:["Buku","Anime","One Piece"], job:"Content Writer", edu:"Universitas Airlangga", topics:["buku","anime","menulis"], status:"active" },
+  { id:6, name:"Fajar Nugroho", age:26, emoji:"🏄", bg:"#1A221E", loc:"Tangerang, 6 km", bio:"Full-time WFH, part-time surfer. Setiap weekend ke Banten. Join?", tags:["Surfing","WFH","Pantai"], job:"Product Manager", edu:"Binus University", topics:["surfing","pantai","travel"], status:"active" },
+  { id:7, name:"Aulia Putri", age:23, emoji:"🎨", bg:"#221A1A", loc:"Jakarta Timur, 9 km", bio:"Seniman digital & makeup artist. Life is colorful!", tags:["Digital Art","Makeup","Kreatif"], job:"Digital Artist", edu:"IKJ", topics:["seni","makeup","fashion"], status:"active" },
+  { id:8, name:"Dito Wijaya", age:28, emoji:"🏋️", bg:"#1A2A22", loc:"Jakarta Barat, 4 km", bio:"Gym rat yang sebenarnya lebih sering rebahan. Foodie receh tapi rekomendasi tepat.", tags:["Gym","Kuliner","Rebahan"], job:"Marketing Manager", edu:"UNDIP", topics:["olahraga","kuliner","gym"], status:"active" },
+];
+
+function loadAdminProfiles() {
+  try {
+    const saved = localStorage.getItem('tindai_profiles');
+    const data = saved ? JSON.parse(saved) : null;
+    if (data && data.length > 0) return data.filter(p => p.status === 'active');
+    return DEFAULT_PROFILES;
+  } catch { return DEFAULT_PROFILES; }
+}
+function loadAdminPhotos() {
+  try { return JSON.parse(localStorage.getItem('tindai_photos')) || {}; } catch { return {}; }
+}
+function loadMyProfile() {
+  try { return JSON.parse(localStorage.getItem('tindai_my_profile')) || null; } catch { return null; }
+}
+
+let PROFILES = loadAdminProfiles();
+let PHOTOS = loadAdminPhotos();
+let MY_PROFILE = loadMyProfile();
+
+// ── STATE ──
+let queue = [...PROFILES];
+let matches = [];
+let chatHistories = {};
+let currentProfile = null;
+let statsLikes = 0, statsMatches = 0, statsChats = 0;
+let deferredPrompt = null;
+let undoStack = [];
+
+// ── PWA INSTALL ──
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  setTimeout(() => document.getElementById('install-banner').classList.add('show'), 3000);
+});
+document.getElementById('install-btn-el').addEventListener('click', async () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  deferredPrompt = null;
+  document.getElementById('install-banner').classList.remove('show');
+});
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(()=>{}));
+}
+
+// ── SCREEN MANAGEMENT ──
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (id === 'chat-screen') renderChatList();
+  if (id === 'profile-screen') updateStats();
+  document.getElementById('msg-dot').style.display = matches.length > 0 ? 'block' : 'none';
+}
+
+// ── SPLASH ──
+setTimeout(() => {
+  document.getElementById('splash').style.transition = 'opacity 0.5s';
+  document.getElementById('splash').style.opacity = '0';
+  setTimeout(() => {
+    document.getElementById('splash').remove();
+    showScreen('swipe-screen');
+    renderCards();
+  }, 500);
+}, 2200);
+
+// ── CARD RENDERING ──
+function renderCards() {
+  const stack = document.getElementById('card-stack');
+  stack.innerHTML = '';
+  if (queue.length === 0) {
+    stack.innerHTML = `<div class="empty-cards">
+      <div class="empty-icon">🌟</div>
+      <div class="empty-text">Kamu udah lihat semua!</div>
+      <div class="empty-sub">Coba lagi nanti atau perluas jarak pencarianmu</div>
+    </div>`;
+    return;
+  }
+  const visible = queue.slice(0, 3);
+  [...visible].reverse().forEach((p, i) => {
+    const realIdx = visible.length - 1 - i;
+    const card = document.createElement('div');
+    card.className = 'profile-card';
+    card.dataset.id = p.id;
+    const scale = 1 - realIdx * 0.04;
+    const ty = realIdx * 12;
+    card.style.cssText = `transform:scale(${scale}) translateY(${ty}px);z-index:${visible.length - realIdx};background:${p.bg}`;
+    const photoSrc = PHOTOS[p.id];
+    const photoHtml = photoSrc
+      ? `<img src="${photoSrc}" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0"/>`
+      : `<span style="font-size:90px">${p.emoji||'👤'}</span>`;
+    card.innerHTML = `
+      <div class="card-photo" style="background:${p.bg};position:relative">${photoHtml}</div>
+      <div class="card-gradient"></div>
+      <div class="swipe-badge badge-like" id="like-badge-${p.id}">SUKA ♥</div>
+      <div class="swipe-badge badge-nope" id="nope-badge-${p.id}">NOPE ✕</div>
+      <div class="card-info">
+        <div class="card-name-row">
+          <div class="card-name">${p.name}</div>
+          <div class="card-age">${p.age}</div>
+        </div>
+        <div class="card-loc">📍 ${p.loc}</div>
+        <div class="card-bio">${p.bio}</div>
+        <div class="card-tags">${p.tags.map(t=>`<span class="card-tag">${t}</span>`).join('')}</div>
+      </div>`;
+    if (realIdx === 0) setupTouch(card, p);
+    stack.appendChild(card);
+  });
+}
+
+// ── DRAG/TOUCH ──
+function setupTouch(card, p) {
+  let startX=0, startY=0, currentX=0, isDragging=false;
+  const onStart = e => {
+    isDragging = true;
+    const pt = e.touches ? e.touches[0] : e;
+    startX = pt.clientX; startY = pt.clientY;
+    card.style.transition = 'none';
+  };
+  const onMove = e => {
+    if (!isDragging) return;
+    e.preventDefault();
+    const pt = e.touches ? e.touches[0] : e;
+    currentX = pt.clientX - startX;
+    const currentY = pt.clientY - startY;
+    const rot = currentX * 0.06;
+    card.style.transform = `translateX(${currentX}px) translateY(${currentY*0.3}px) rotate(${rot}deg)`;
+    const likeEl = document.getElementById(`like-badge-${p.id}`);
+    const nopeEl = document.getElementById(`nope-badge-${p.id}`);
+    if(likeEl) likeEl.style.opacity = Math.min(1, Math.max(0, currentX/70));
+    if(nopeEl) nopeEl.style.opacity = Math.min(1, Math.max(0, -currentX/70));
+  };
+  const onEnd = () => {
+    if (!isDragging) return;
+    isDragging = false;
+    card.style.transition = 'transform 0.3s ease';
+    if (currentX > 80) animateSwipe(card, 'right', p);
+    else if (currentX < -80) animateSwipe(card, 'left', p);
+    else { card.style.transform = `scale(1) translateY(0)`; renderCards(); }
+    currentX = 0;
+  };
+  card.addEventListener('mousedown', onStart);
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onEnd);
+  card.addEventListener('touchstart', onStart, {passive:true});
+  card.addEventListener('touchmove', onMove, {passive:false});
+  card.addEventListener('touchend', onEnd);
+}
+
+function animateSwipe(card, dir, p) {
+  const tx = dir === 'right' ? '130%' : '-130%';
+  const rot = dir === 'right' ? '25deg' : '-25deg';
+  card.style.transition = 'transform 0.4s cubic-bezier(0.25,0.46,0.45,0.94), opacity 0.4s';
+  card.style.transform = `translateX(${tx}) rotate(${rot})`;
+  card.style.opacity = '0';
+  processSwipe(dir, p);
+  setTimeout(renderCards, 420);
+}
+
+function processSwipe(dir, p) {
+  undoStack.push({ p, dir });
+  queue = queue.filter(x => x.id !== p.id);
+  if (dir === 'right' || dir === 'super') {
+    statsLikes++;
+    if (Math.random() > 0.25) {
+      setTimeout(() => triggerMatch(p), 450);
+    }
+  }
+}
+
+function doSwipe(dir) {
+  if (queue.length === 0) return;
+  const p = queue[0];
+  const card = document.querySelector('.profile-card:last-child');
+  if (!card) return;
+  animateSwipe(card, dir === 'left' ? 'left' : 'right', p);
+}
+
+function undoSwipe() {
+  if (undoStack.length === 0) return;
+  const last = undoStack.pop();
+  queue.unshift(last.p);
+  renderCards();
+}
+
+// ── MATCH ──
+let pendingMatchProfile = null;
+function triggerMatch(p) {
+  pendingMatchProfile = p;
+  statsMatches++;
+  matches.push(p);
+  chatHistories[p.id] = [{ role:'them', text:`Hai! Kita match ya 🥰 Aku seneng banget! Kenalin, aku ${p.name}. ${(p.bio||'').split('.')[0]}.` }];
+  const matchEl = document.getElementById('match-emoji-el');
+  const photoSrc = PHOTOS[p.id];
+  if (photoSrc) {
+    matchEl.innerHTML = `<img src="${photoSrc}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>`;
+    matchEl.style.fontSize = '0';
+  } else {
+    matchEl.textContent = p.emoji || '👤';
+    matchEl.style.fontSize = '';
+  }
+  document.getElementById('match-sub-text').textContent = `Kamu dan ${p.name} saling tertarik! Mulai obrolan sekarang 💬`;
+  document.getElementById('match-overlay').classList.add('show');
+  document.getElementById('msg-dot').style.display = 'block';
+}
+function closeMatch() {
+  document.getElementById('match-overlay').classList.remove('show');
+  pendingMatchProfile = null;
+}
+function openMatchChat() {
+  document.getElementById('match-overlay').classList.remove('show');
+  if (pendingMatchProfile) openChatRoom(pendingMatchProfile);
+}
+
+// ── CHAT LIST ──
+function renderChatList() {
+  const el = document.getElementById('chat-content');
+  if (matches.length === 0) {
+    el.innerHTML = `<div class="empty-chat"><div class="icon">💌</div><div class="title">Belum Ada Pesan</div><div class="sub">Swipe dan dapatkan match untuk mulai ngobrol!</div></div>`;
+    return;
+  }
+  const newMatchesHTML = `<div class="new-matches">
+    <div class="section-title">Match Baru</div>
+    <div class="new-matches-scroll">
+      ${matches.map(p => {
+        const photo = PHOTOS[p.id];
+        const av = photo ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>` : p.emoji;
+        return `<div class="new-match-item" onclick="openChatRoom(PROFILES.find(x=>x.id===${p.id}))">
+          <div class="new-match-avatar" style="${photo?'font-size:0':''}">  ${av}</div>
+          <div class="new-match-name">${p.name.split(' ')[0]}</div>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>
+  <div class="chat-divider"></div>
+  <div class="section-title" style="padding:8px 20px 4px">Pesan</div>`;
+
+  const chatsHTML = matches.map(p => {
+    const hist = chatHistories[p.id] || [];
+    const last = hist[hist.length - 1];
+    const photo = PHOTOS[p.id];
+    const av = photo ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>` : p.emoji;
+    return `<div class="chat-item" onclick="openChatRoom(PROFILES.find(x=>x.id===${p.id}))">
+      <div class="chat-avatar online" style="${photo?'font-size:0;overflow:hidden':''}">${av}</div>
+      <div class="chat-info">
+        <div class="chat-name">${p.name}</div>
+        <div class="chat-preview">${last ? last.text.substring(0,60)+'...' : '...'}</div>
+      </div>
+      <div class="chat-meta">
+        <div class="chat-time">Baru</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  el.innerHTML = newMatchesHTML + chatsHTML;
+}
+
+// ── CHAT ROOM ──
+function openChatRoom(p) {
+  if (!p) return;
+  currentProfile = p;
+  const photo = PHOTOS[p.id];
+  const avatarEl = document.getElementById('room-avatar-el');
+  if (photo) {
+    avatarEl.innerHTML = `<img src="${photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>`;
+    avatarEl.style.fontSize = '0';
+  } else {
+    avatarEl.textContent = p.emoji || '👤';
+    avatarEl.style.fontSize = '';
+  }
+  document.getElementById('room-name-el').textContent = p.name;
+  if (!chatHistories[p.id]) chatHistories[p.id] = [];
+  statsChats++;
+  showScreen('room-screen');
+  renderMessages();
+  setTimeout(() => {
+    const msgs = document.getElementById('messages-el');
+    msgs.scrollTop = msgs.scrollHeight;
+  }, 100);
+}
+
+function renderMessages() {
+  if (!currentProfile) return;
+  const hist = chatHistories[currentProfile.id] || [];
+  const el = document.getElementById('messages-el');
+  el.innerHTML = hist.map(m => {
+    if (m.role === 'me') return `<div class="msg-wrap me"><div class="msg me">${m.text}</div></div>`;
+    return `<div class="msg-wrap them">
+      <div class="them-row">
+        <div class="msg-avatar">${currentProfile.emoji}</div>
+        <div class="msg them">${m.text}</div>
+      </div>
+    </div>`;
+  }).join('');
+  el.scrollTop = el.scrollHeight;
+}
+
+async function sendMessage() {
+  const input = document.getElementById('msg-input');
+  const text = input.value.trim();
+  if (!text || !currentProfile) return;
+  const btn = document.getElementById('send-btn');
+  input.value = '';
+  btn.disabled = true;
+
+  chatHistories[currentProfile.id].push({ role:'me', text });
+  renderMessages();
+
+  const typingId = 'typing-' + Date.now();
+  const el = document.getElementById('messages-el');
+  const typingEl = document.createElement('div');
+  typingEl.className = 'msg-wrap them';
+  typingEl.id = typingId;
+  typingEl.innerHTML = `<div class="them-row"><div class="msg-avatar">${currentProfile.emoji}</div><div class="msg them typing">mengetik...</div></div>`;
+  el.appendChild(typingEl);
+  el.scrollTop = el.scrollHeight;
+
+  const p = currentProfile;
+  const hist = chatHistories[p.id].slice(0,-1);
+  const histText = hist.slice(-8).map(m => `${m.role==='me'?'Pengguna':p.name}: ${m.text}`).join('\n');
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        system:`Kamu adalah ${p.name}, ${p.age} tahun, tinggal di ${p.loc}. Pekerjaan: ${p.job}. Pendidikan: ${p.edu}. Bio: "${p.bio}". Topik favorit: ${p.topics.join(', ')}. Kamu baru match di aplikasi kencan Tindai dengan pengguna. Balas dengan gaya santai, hangat, flirty tapi sopan seperti orang Indonesia yang sedang PDKT. Maksimal 2-3 kalimat. Pakai bahasa Indonesia gaul yang natural dan sesekali emoji. Tunjukkan kepribadianmu yang unik.`,
+        messages:[{role:'user',content:`Riwayat:\n${histText}\n\nPengguna: ${text}`}]
+      })
+    });
+    const data = await res.json();
+    const reply = data.content?.find(c=>c.type==='text')?.text || 'Hehe 😊';
+    document.getElementById(typingId)?.remove();
+    chatHistories[p.id].push({ role:'them', text:reply });
+    renderMessages();
+  } catch(e) {
+    document.getElementById(typingId)?.remove();
+    chatHistories[p.id].push({ role:'them', text:'Eh koneksi lagi gangguan nih 😅 Coba lagi ya!' });
+    renderMessages();
+  }
+  btn.disabled = false;
+  input.focus();
+}
+
+document.getElementById('msg-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+});
+
+// ── STATS ──
+function updateStats() {
+  document.getElementById('stat-likes').textContent = statsLikes;
+  document.getElementById('stat-matches').textContent = statsMatches;
+  document.getElementById('stat-chats').textContent = statsChats;
+  // Show my profile data
+  const mp = loadMyProfile();
+  const myPhoto = PHOTOS['me'];
+  if (mp) {
+    const nameEl = document.querySelector('#profile-screen .profile-name');
+    const taglineEl = document.querySelector('#profile-screen .profile-tagline');
+    const heroEl = document.querySelector('#profile-screen .profile-hero');
+    if (nameEl) nameEl.textContent = mp.name || 'Kamu';
+    if (taglineEl) taglineEl.textContent = `${mp.location || 'Indonesia'} · ${mp.age || '-'} tahun`;
+    if (heroEl) {
+      if (myPhoto) {
+        heroEl.innerHTML = `<img src="${myPhoto}" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>`;
+        heroEl.style.fontSize = '0';
+      } else {
+        heroEl.textContent = '😊';
+        heroEl.style.fontSize = '';
+      }
+    }
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{
+  "name": "Tindai - Temukan Pasanganmu",
+  "short_name": "Tindai",
+  "description": "Aplikasi kencan AI terbaik Indonesia",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0d0d0d",
+  "theme_color": "#E8192C",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "screenshots": [],
+  "categories": ["social", "lifestyle"],
+  "lang": "id"
+}
